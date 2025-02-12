@@ -2,7 +2,7 @@ local lu = require('luaunit')
 local libjwt = require('../lib/resty/libjwt')
 
 
-function test_should_return_undefined_when_params_is_nil()
+function TestShouldReturnUndefinedWhenParamsIsNil()
     local result, err = libjwt.get_params()
     lu.assertEquals(err, "params is required" )
     lu.assertEquals(result, nil )
@@ -13,14 +13,14 @@ function test_should_return_undefined_when_params_is_nil()
 end
 
 
-function test_should_return_undefined_when_files_is_nil()
+function TestShouldReturnUndefinedWhenFilesIsNil()
     local params = {["header_token"] = "token"}
     local result, err = libjwt.get_params(params)
     lu.assertEquals(err, "jwks_files is required" )
     lu.assertEquals(result, nil )
 end
 
-function test_should_return_values_when_files_is_not_nil()
+function TestShouldReturnValuesWhenFilesIsNotNil()
     local params = {
         ["header_token"] = "token",
         ["jwks_files"] = "files",
@@ -30,7 +30,7 @@ function test_should_return_values_when_files_is_not_nil()
     lu.assertEquals(result, nil )
 end
 
-function test_should_return_validated_params()
+function TestShouldReturnValidatedParams()
     local params = {
         ["header_token"] = "token",
         ["jwks_files"] = {"files"},
