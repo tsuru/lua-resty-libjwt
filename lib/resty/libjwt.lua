@@ -21,6 +21,24 @@ function _M.get_params(params)
     return result, ""
 end
 
+
+function _M.split(str, sep)
+    if str == "" or str == nil then
+        return nil, "param is required"
+    end
+    if type(str) ~= "string" then
+        return nil, "param should be a string"
+    end
+    if type(sep) ~= "string" or sep == "" then
+        return nil, "separator should be a string"
+    end
+    local result = {}
+    for match in (str .. sep):gmatch("(.-)" .. sep) do
+        table.insert(result, match)
+    end
+    return result, ""
+end
+
 function _M.validate(params)
     local params, err = _M.get_params(params)
     if err ~= "" then
