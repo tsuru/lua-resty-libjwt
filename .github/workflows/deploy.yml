@@ -1,0 +1,26 @@
+name: LuaJIT Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install LuaJIT and LuaRocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luajit luarocks
+
+      - name: Install luaunit
+        run: luarocks install luaunit
+
+      - name: Run LuaJIT tests
+        run: luajit ./test/params_test.lua
