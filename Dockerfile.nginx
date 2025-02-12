@@ -1,0 +1,7 @@
+FROM openresty/openresty:alpine
+
+COPY ./nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY ./lib/resty/libjwt.lua /usr/local/openresty/lualib/resty/libjwt.lua
+
+EXPOSE 8888
+CMD ["openresty", "-g", "daemon off;"]
