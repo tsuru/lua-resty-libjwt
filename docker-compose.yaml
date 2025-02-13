@@ -5,3 +5,5 @@ services:
       dockerfile: Dockerfile.nginx
     ports:
       - "8888:8888"
+    volumes:
+      - ./tokens:/usr/share/tokens
