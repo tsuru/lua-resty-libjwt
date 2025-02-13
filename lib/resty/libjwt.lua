@@ -1,8 +1,10 @@
+local libjwt_c = loadfile("./jwks_c.lua")
 local _M = {}
 
 function _M.get_params(params)
     local result = {
         header_token = "Authorization",
+        jwks_files = {},
     }
     if params == nil then
         return nil, "params is required"
@@ -39,15 +41,38 @@ function _M.split(str, sep)
     return result, ""
 end
 
+
+local open = io.open
+function _M.read_file(path)
+    local file = open(path, "rb")
+    if not file then return nil end
+    local content = file:read "*a"
+    file:close()
+    return content
+end
+
+
+function _M.get_token(headers, field_token)
+    local auth_header = headers[field_token]
+    local jwtToken, err = _M.split(auth_header, " ")
+    if err == "param is required" then
+        return nil, "token not found"
+    end
+    if err ~= "" then
+        return nil, err 
+    end
+    if jwtToken[2] == nil then
+        return nil, "token not found"
+    end
+    return jwtToken[2], ""
+end
+
+
 function _M.validate(params)
     local params, err = _M.get_params(params)
     if err ~= "" then
         return nil, err
     end
-    return false, "Not implemented"
 end
-
-
-
 
 return _M
