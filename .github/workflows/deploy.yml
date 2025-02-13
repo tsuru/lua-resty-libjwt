@@ -23,4 +23,4 @@ jobs:
         run: sudo luarocks install luaunit
 
       - name: Run LuaJIT tests
-        run: luajit ./test/params_test.lua
+        run: make test
