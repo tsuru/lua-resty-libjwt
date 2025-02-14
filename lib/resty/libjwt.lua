@@ -22,11 +22,11 @@ function _M.validate( params)
         return false, err
     end
     for i, jwks_file in ipairs(params.jwks_files) do
-        local jwks = _M.read_file(jwks_file)
-        if jwks == nil then
-            return false, "jwks file not found"
+        local file = _M.read_file(jwks_file)
+        if file == nil then
+            goto continue
         end
-        local jwks_set = jwks_c.jwks_create(jwks);
+        local jwks_set = jwks_c.jwks_create(file);
         local jwks_item = jwks_c.jwks_item_get(jwks_set, 0);
         local checker = jwks_c.jwt_checker_new();
         jwks_c.jwt_checker_setkey(checker, jwks_c.JWT_ALG_RS256, jwks_item);
@@ -34,6 +34,7 @@ function _M.validate( params)
         if result == 0 then
             return true, ""
         end
+         ::continue::
     end
     return false, "token not valid"
 end
