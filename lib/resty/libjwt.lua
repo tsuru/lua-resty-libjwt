@@ -1,4 +1,5 @@
-local libjwt_c = loadfile("./jwks_c.lua")
+local jwks_c = require("resty.jwks_c")
+
 local _M = {}
 
 function _M.get_params(params)
@@ -67,12 +68,32 @@ function _M.get_token(headers, field_token)
     return jwtToken[2], ""
 end
 
-
-function _M.validate(params)
+function _M.validate( params)
     local params, err = _M.get_params(params)
     if err ~= "" then
-        return nil, err
+        return false, err
     end
+
+    local headers = ngx.req.get_headers()
+    local token, err = _M.get_token(headers, params.header_token)
+    if err ~= "" then
+        return false, err
+    end
+    for i, jwks_file in ipairs(params.jwks_files) do
+        local jwks = _M.read_file(jwks_file)
+        if jwks == nil then
+            return false, "jwks file not found"
+        end
+        local jwks_set = jwks_c.jwks_create(jwks);
+        local jwks_item = jwks_c.jwks_item_get(jwks_set, 0);
+        local checker = jwks_c.jwt_checker_new();
+        jwks_c.jwt_checker_setkey(checker, jwks_c.JWT_ALG_RS256, jwks_item);
+        local result = jwks_c.jwt_checker_verify(checker, token);
+        if result == 0 then
+            return true, ""
+        end
+    end
+    return false, "token not valid"
 end
 
 return _M
