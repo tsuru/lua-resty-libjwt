@@ -12,8 +12,6 @@ RUN mkdir libjwt/build
 RUN cd libjwt/build && cmake ..
 RUN cd libjwt/build && make && make install
 
-RUN mkdir -p /home/app/libs
-RUN cp /usr/lib/libjansson.so* /home/app/libs/
 
 EXPOSE 8888
 CMD ["openresty", "-g", "daemon off;"]

@@ -33,6 +33,6 @@ jwk_set_t *jwks_create(const char *jwk_json_str);
 const jwk_item_t *jwks_item_get(const jwk_set_t *jwk_set, size_t index);
 ]]
 
-local libjwt = ffi.load("/home/app/libjwt/build/libjwt.so.14.2.0");
+local libjwt = ffi.load("libjwt");
 
 return libjwt
