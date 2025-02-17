@@ -11,6 +11,7 @@ function _M.read_file(path)
     return content
 end
 
+local TOKEN_VALID = 0
 function _M.validate( params)
     local params, err = utils.get_params(params)
     if err ~= "" then
@@ -31,7 +32,7 @@ function _M.validate( params)
         local checker = jwks_c.jwt_checker_new();
         jwks_c.jwt_checker_setkey(checker, jwks_c.JWT_ALG_RS256, jwks_item);
         local result = jwks_c.jwt_checker_verify(checker, token);
-        if result == 0 then
+        if result == TOKEN_VALID then
             return true, ""
         end
          ::continue::
