@@ -1,5 +1,5 @@
 local lu = require('luaunit')
-local utils = require('../lib/resty/utils')
+local utils = require('../lib/resty/libjwt/utils')
 
 function TestShouldReturnErrorWhenNotFindingTheToken()
     local headers = {

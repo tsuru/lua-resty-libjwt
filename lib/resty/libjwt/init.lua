@@ -1,5 +1,5 @@
-local jwks_c = require("resty.jwks_c")
-local utils = require("resty.utils")
+local jwks_c = require("resty.libjwt.jwks_c")
+local utils = require("resty.libjwt.utils")
 local _M = {}
 
 local open = io.open
