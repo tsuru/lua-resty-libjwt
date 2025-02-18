@@ -1,17 +1,17 @@
-FROM openresty/openresty:alpine
+FROM alpine:3.21.2 as libjwt-builder
 
 WORKDIR /home/app
 RUN apk add --no-cache git cmake make gcc g++ jansson-dev openssl-dev 
+RUN git clone --depth 1 --branch v3.2.0 https://github.com/benmcollins/libjwt.git && \
+    mkdir libjwt/build && \
+    cd libjwt/build && cmake .. && make && make install
 
+FROM openresty/openresty:1.27.1.1-1-alpine
 
 COPY ./nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY ./lib/resty/libjwt /usr/local/openresty/lualib/resty/libjwt
 
-RUN git clone https://github.com/benmcollins/libjwt.git
-RUN mkdir libjwt/build
-RUN cd libjwt/build && cmake ..
-RUN cd libjwt/build && make && make install
-
-
+RUN apk add --no-cache jansson
+COPY --from=libjwt-builder /usr/local/lib/libjwt.so /usr/local/lib/libjwt.so
 EXPOSE 8888
 CMD ["openresty", "-g", "daemon off;"]
