@@ -1,5 +1,8 @@
 local jwks_c = require("resty.libjwt.jwks_c")
 local utils = require("resty.libjwt.utils")
+local validate = require("resty.libjwt.validate")
+local cjson = require("cjson")
+
 local _M = {}
 
 local open = io.open
@@ -12,7 +15,7 @@ function _M.read_file(path)
 end
 
 local TOKEN_VALID = 0
-function _M.validate( params)
+function _M.validate(params)
     local params, err = utils.get_params(params)
     if err ~= "" then
         return false, err
@@ -22,22 +25,32 @@ function _M.validate( params)
     if err ~= "" then
         return false, err
     end
+    local parsed_token, err = validate.decode(token)
+    if err ~= nil then
+        return nil, err
+    end
+    if parsed_token.header.kid == nil then
+        return nil, "kid not found"
+    end
     for i, jwks_file in ipairs(params.jwks_files) do
         local file = _M.read_file(jwks_file)
         if file == nil then
             goto continue
         end
         local jwks_set = jwks_c.jwks_create(file);
-        local jwks_item = jwks_c.jwks_item_get(jwks_set, 0);
         local checker = jwks_c.jwt_checker_new();
+        local jwks_item = jwks_c.jwks_find_bykid(jwks_set, parsed_token.header.kid);
+        if jwks_item == nil then
+            goto continue
+        end
         jwks_c.jwt_checker_setkey(checker, jwks_c.JWT_ALG_RS256, jwks_item);
         local result = jwks_c.jwt_checker_verify(checker, token);
         if result == TOKEN_VALID then
-            return true, ""
+            return parsed_token, ""
         end
-         ::continue::
+        ::continue::
     end
-    return false, "token not valid"
+    return nil, "token not valid"
 end
 
 return _M
