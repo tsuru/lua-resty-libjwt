@@ -31,6 +31,7 @@ int jwt_checker_setkey(jwt_checker_t *checker, const jwt_alg_t alg, const jwk_it
 typedef struct jwk_set jwk_set_t;
 jwk_set_t *jwks_create(const char *jwk_json_str);
 const jwk_item_t *jwks_item_get(const jwk_set_t *jwk_set, size_t index);
+jwk_item_t *jwks_find_bykid(jwk_set_t *jwk_set, const char *kid);
 ]]
 
 local libjwt = ffi.load("libjwt");
