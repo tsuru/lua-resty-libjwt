@@ -1,7 +1,6 @@
 local jwks_c = require("resty.libjwt.jwks_c")
 local utils = require("resty.libjwt.utils")
-local validate = require("resty.libjwt.validate")
-local cjson = require("cjson")
+local cached = require("resty.libjwt.cached")
 
 local _M = {}
 
@@ -25,17 +24,25 @@ function _M.validate(params)
     if err ~= "" then
         return false, err
     end
-    local parsed_token, err = validate.decode(token)
+    local parsed_token, err = utils.decode_jwt(token)
     if err ~= nil then
         return nil, err
     end
-    if parsed_token.header.kid == nil then
+    if parsed_token == nil or parsed_token.header.kid == nil then
         return nil, "kid not found"
     end
+
+    local files_cached = cached:getInstance()
     for i, jwks_file in ipairs(params.jwks_files) do
-        local file = _M.read_file(jwks_file)
-        if file == nil then
-            goto continue
+        local file
+        if files_cached:get(jwks_file) == nil then
+            file = _M.read_file(jwks_file)
+            if file == nil then
+                goto continue
+            end
+            files_cached:set(jwks_file, file)
+        else
+            file = files_cached:get(jwks_file)
         end
         local jwks_set = jwks_c.jwks_create(file);
         local checker = jwks_c.jwt_checker_new();
