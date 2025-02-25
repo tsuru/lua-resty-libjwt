@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	assertTestify "github.com/stretchr/testify/assert"
 	container_test "github.com/tsuru/lua-resty-libjwt/e2e/container"
 	jwks_test "github.com/tsuru/lua-resty-libjwt/e2e/jwks"
+	nginx_test "github.com/tsuru/lua-resty-libjwt/e2e/nginx"
 	request_test "github.com/tsuru/lua-resty-libjwt/e2e/request"
 )
 
@@ -152,4 +154,62 @@ func TestNginxContainer(t *testing.T) {
 		assert.Equal(http.StatusUnauthorized, statusCode)
 		assert.Equal("{\"message\":\"token not found\"}\n", string(body))
 	})
+
+	t.Run("Should return an error when JWT is expired", func(t *testing.T) {
+		assert := assertTestify.New(t)
+		containerTest.Clear()
+		containerTest.ChangeNginxConfigReadFile("./nginx/nginx.private.jwks.conf")
+		date := time.Now()
+		jwt, jwks, _ := jwks_test.Generate(
+			jwks_test.JWTParams{KID: "tsuru-kid-123", Iat: date.Add(-2 * time.Hour).Unix(), Exp: date.Add(-1 * time.Hour).Unix()},
+			jwks_test.JWKSParams{KID: "tsuru-kid-123"})
+		containerTest.AddFiles([]container_test.File{
+			{Path: "/usr/share/tokens/jwks.json", File: jwks},
+		})
+		body, statusCode, err := request_test.Do(request_test.Params{
+			URL:         URL,
+			HeaderKey:   "Authorization",
+			HeaderValue: fmt.Sprintf("Bearer %s", jwt),
+		})
+		assert.NoError(err)
+		assert.Equal(http.StatusUnauthorized, statusCode)
+		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+	})
+
+	t.Run("Should return success when a valid JWKS is provided", func(t *testing.T) {
+		assert := assertTestify.New(t)
+		containerTest.Clear()
+		nginxConfBytes, err := nginx_test.ReplaceNginxConfig("./nginx/nginx.private.jwks.conf",
+			[]string{"\"/usr/share/tokens/jwks_1.json\"", "\"/usr/share/tokens/jwks_2.json\""})
+		assert.NoError(err)
+		containerTest.ChangeNginxConfig(nginxConfBytes)
+		_, jwksOne, _ := jwks_test.Generate(
+			jwks_test.JWTParams{KID: "tsuru-kid-123"},
+			jwks_test.JWKSParams{KID: "tsuru-kid-123"})
+		containerTest.AddFiles([]container_test.File{
+			{Path: "/usr/share/tokens/jwks_1.json", File: jwksOne},
+		})
+		jwtRequest, jwksRequest, _ := jwks_test.Generate(
+			jwks_test.JWTParams{KID: "kid-123"},
+			jwks_test.JWKSParams{KID: "kid-123"})
+		body, statusCode, err := request_test.Do(request_test.Params{
+			URL:         URL,
+			HeaderKey:   "Authorization",
+			HeaderValue: fmt.Sprintf("Bearer %s", jwtRequest),
+		})
+		assert.NoError(err)
+		assert.Equal(http.StatusUnauthorized, statusCode)
+		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+		containerTest.AddFiles([]container_test.File{
+			{Path: "/usr/share/tokens/jwks_2.json", File: jwksRequest},
+		})
+		_, statusCode, err = request_test.Do(request_test.Params{
+			URL:         URL,
+			HeaderKey:   "Authorization",
+			HeaderValue: fmt.Sprintf("Bearer %s", jwtRequest),
+		})
+		assert.NoError(err)
+		assert.Equal(http.StatusOK, statusCode)
+	})
+
 }
