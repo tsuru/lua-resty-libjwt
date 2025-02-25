@@ -16,3 +16,6 @@ test:
 	        exit $$exit_code; \
 	    fi; \
 	done
+
+test-e2e:
+	@go test -v ./...
