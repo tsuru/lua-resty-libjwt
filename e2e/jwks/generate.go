@@ -40,6 +40,7 @@ type JWTParams struct {
 	Email string
 	KID   string
 	Exp   int64
+	Iat   int64
 }
 
 func CreateJWT(privateKey *rsa.PrivateKey, params JWTParams) (string, error) {
@@ -62,6 +63,9 @@ func CreateJWT(privateKey *rsa.PrivateKey, params JWTParams) (string, error) {
 	}
 	if params.Exp != 0 {
 		claims["exp"] = params.Exp
+	}
+	if params.Iat != 0 {
+		claims["iat"] = params.Iat
 	}
 	return token.SignedString(privateKey)
 }
