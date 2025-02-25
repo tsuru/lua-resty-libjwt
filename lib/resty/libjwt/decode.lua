@@ -1,13 +1,12 @@
 local b64 = require("ngx.base64")
 local cjson = require("cjson.safe")
-local ngx = require("ngx")
 
 local _M = {}
 
-function _M.decode(jwt)
+function _M.jwt(jwt)
     local header_b64, payload_b64, signature_b64 = jwt:match("([^%.]+)%.([^%.]+)%.([^%.]+)")
     if not (header_b64 and payload_b64 and signature_b64) then
-        error("JWT invalid")
+        return nil, "JWT invalid"
     end
 
     local header, err = b64.decode_base64url(header_b64)

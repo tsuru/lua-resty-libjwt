@@ -1,7 +1,7 @@
 local jwks_c = require("resty.libjwt.jwks_c")
 local utils = require("resty.libjwt.utils")
 local cached = require("resty.libjwt.cached")
-
+local decode = require("resty.libjwt.decode")
 local _M = {}
 
 local open = io.open
@@ -24,7 +24,7 @@ function _M.validate(params)
     if err ~= "" then
         return false, err
     end
-    local parsed_token, err = utils.decode_jwt(token)
+    local parsed_token, err = decode.jwt(token)
     if err ~= nil then
         return nil, err
     end
