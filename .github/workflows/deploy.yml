@@ -7,9 +7,8 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-unit:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,6 +28,17 @@ jobs:
 
       - name: Run LuaJIT tests
         run: make test
+
+  test-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
       
       - name: Run Golang E2E tests
         run: make test-e2e
