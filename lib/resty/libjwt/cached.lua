@@ -2,7 +2,7 @@ local cached = {}
 
 local instance = nil
 
-function cached:getInstance()
+function cached.getInstance()
     if not instance then
         instance = {
             data = {}

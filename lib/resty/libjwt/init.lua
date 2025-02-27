@@ -4,6 +4,7 @@ local cached = require("resty.libjwt.cached")
 local decode = require("resty.libjwt.decode")
 local cjson = require("cjson.safe")
 local _M = {}
+local ngx = ngx
 
 local open = io.open
 function _M.read_file(path)
@@ -15,8 +16,8 @@ function _M.read_file(path)
 end
 
 local TOKEN_VALID = 0
-function _M.validate(params)
-    local params, err = utils.get_params(params)
+function _M.validate(user_params)
+    local params, err = utils.get_params(user_params)
     if params == nil then
         return false, _M.response_error(err, false)
     end
@@ -24,11 +25,14 @@ function _M.validate(params)
         return false, _M.response_error(err, params.return_unauthorized_default)
     end
     local headers = ngx.req.get_headers()
-    local token, err = utils.get_token(headers, params.header_token)
+
+    local token
+    token, err = utils.get_token(headers, params.header_token)
     if err ~= "" then
         return false, _M.response_error(err, params.return_unauthorized_default)
     end
-    local parsed_token, err = decode.jwt(token)
+    local parsed_token
+    parsed_token, err = decode.jwt(token)
     if err ~= nil then
         return nil, _M.response_error(err, params.return_unauthorized_default)
     end
@@ -37,7 +41,7 @@ function _M.validate(params)
     end
 
     local files_cached = cached:getInstance()
-    for i, jwks_file in ipairs(params.jwks_files) do
+    for _, jwks_file in ipairs(params.jwks_files) do
         local file
         if files_cached:get(jwks_file) == nil then
             file = _M.read_file(jwks_file)

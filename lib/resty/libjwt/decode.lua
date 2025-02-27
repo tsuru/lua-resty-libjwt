@@ -14,7 +14,8 @@ function _M.jwt(jwt)
         return nil, err
     end
 
-    local payload, err = b64.decode_base64url(payload_b64)
+    local payload
+    payload, err = b64.decode_base64url(payload_b64)
     if err then
         return nil, err
     end

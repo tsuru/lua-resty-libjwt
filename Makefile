@@ -19,3 +19,7 @@ test:
 
 test-e2e:
 	@go test -v ./...
+
+lint:
+	luacheck --std ngx_lua ./lib/
+	luacheck -g ./test/

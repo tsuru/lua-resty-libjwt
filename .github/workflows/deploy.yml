@@ -7,6 +7,23 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install LuaJIT and LuaRocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luajit luarocks
+
+      - name: Install luacheck
+        run: sudo luarocks install luacheck
+
+      - name: Run LuaCheck
+        run: make lint
+
   test-unit:
     runs-on: ubuntu-latest
     steps:
