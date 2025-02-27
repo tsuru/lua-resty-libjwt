@@ -3,11 +3,12 @@ local utils = require('../lib/resty/libjwt/utils')
 
 
 function TestShouldReturnUndefinedWhenParamsIsNil()
-    local result, err = utils.get_params()
+    local result, err
+    result, err = utils.get_params()
     lu.assertEquals(err, "params is required")
     lu.assertEquals(result, nil)
 
-    local result, err = utils.get_params(nil)
+    result, err = utils.get_params(nil)
     lu.assertEquals(err, "params is required")
     lu.assertEquals(result, nil)
 end
