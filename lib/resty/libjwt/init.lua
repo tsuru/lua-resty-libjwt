@@ -8,7 +8,7 @@ local _M = {}
 local ngx = ngx
 
 local open = io.open
-function _M.read_file(path)
+local function _read_file(path)
     local file = open(path, "rb")
     if not file then return nil end
     local content = file:read "*a"
@@ -17,35 +17,30 @@ function _M.read_file(path)
 end
 
 local TOKEN_VALID = 0
-function _M.validate(user_params)
-    local params, err = utils.get_params(user_params)
-    if params == nil then
-        return false, _M.response_error(err, false)
-    end
-    if err ~= "" then
-        return false, _M.response_error(err, params.return_unauthorized_default)
-    end
-    local headers = ngx.req.get_headers()
 
-    local token
+
+local function _validate(params)
+    local headers = ngx.req.get_headers()
+    local token, err
+
     token, err = utils.get_token(headers, params.header_token)
     if err ~= "" then
-        return false, _M.response_error(err, params.return_unauthorized_default)
+        return nil, err
     end
     local parsed_token
     parsed_token, err = decode.jwt(token)
     if err ~= nil then
-        return nil, _M.response_error(err, params.return_unauthorized_default)
+        return nil, err
     end
     if parsed_token == nil or parsed_token.header.kid == nil then
-        return nil, _M.response_error("kid not found", params.return_unauthorized_default)
+        return nil, "kid not found"
     end
 
     local files_cached = cached:getInstance()
     for _, jwks_file in ipairs(params.jwks_files) do
         local file
         if files_cached:get(jwks_file) == nil then
-            file = _M.read_file(jwks_file)
+            file = _read_file(jwks_file)
             if file == nil then
                 goto continue
             end
@@ -64,11 +59,11 @@ function _M.validate(user_params)
         local alg = jwks_c.jwks_item_alg(jwks_item);
 
         if alg == jwks_c.JWT_ALG_NONE then
-            return nil, _M.response_error("No algorithm found on jwks", params.return_unauthorized_default)
+            return nil, "No algorithm found on jwks"
         end
 
         if alg == jwks_c.JWT_ALG_INVAL then
-            return nil, _M.response_error("invalid algorithm found on jwks", params.return_unauthorized_default)
+            return nil, "invalid algorithm found on jwks"
         end
 
         jwks_c.jwt_checker_setkey(checker, alg, jwks_item);
@@ -78,10 +73,11 @@ function _M.validate(user_params)
         end
         ::continue::
     end
-    return nil, _M.response_error("invalid token", params.return_unauthorized_default)
+
+    return nil, "invalid token"
 end
 
-function _M.response_error(error_message, return_unauthorized_default)
+local function _response_error(error_message, return_unauthorized_default)
     if return_unauthorized_default == true then
         ngx.header.content_type = "application/json; charset=utf-8"
         local response = {
@@ -92,6 +88,21 @@ function _M.response_error(error_message, return_unauthorized_default)
         ngx.exit(ngx.status)
     end
     return error_message
+end
+
+
+function _M.validate(user_params)
+    local params, err = utils.get_params(user_params)
+    if params == nil then
+        return nil, _response_error(err, true)
+    end
+
+    local parsed_token
+    parsed_token, err = _validate(params)
+    if err ~= "" then
+        return nil, _response_error(err, params.return_unauthorized_default)
+    end
+    return parsed_token, ""
 end
 
 return _M
