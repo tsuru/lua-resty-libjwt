@@ -4,6 +4,7 @@ function _M.get_params(params)
     local result = {
         header_token = "Authorization",
         jwks_files = {},
+        return_unauthorized_default = true
     }
     if params == nil then
         return nil, "params is required"
@@ -14,6 +15,9 @@ function _M.get_params(params)
     end
     if params["jwks_files"] == nil then
         return nil, "jwks_files is required"
+    end
+    if params["return_unauthorized_default"] ~= nil then
+        result.return_unauthorized_default = params["return_unauthorized_default"]
     end
     if type(params["jwks_files"]) ~= "table" then
         return nil, "jwks_files is not an array"
