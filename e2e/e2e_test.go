@@ -76,7 +76,7 @@ func TestNginxContainer(t *testing.T) {
 		})
 		assert.NoError(err)
 		assert.Equal(http.StatusUnauthorized, statusCode)
-		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+		assert.Equal("{\"message\":\"invalid token\"}\n", string(body))
 	})
 	t.Run("Should return an error when JWT header is not a token", func(t *testing.T) {
 		assert := assertTestify.New(t)
@@ -133,7 +133,7 @@ func TestNginxContainer(t *testing.T) {
 		})
 		assert.NoError(err)
 		assert.Equal(http.StatusUnauthorized, statusCode)
-		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+		assert.Equal("{\"message\":\"invalid token\"}\n", string(body))
 	})
 	t.Run("Should return an error when token in header is different from the parameter", func(t *testing.T) {
 		assert := assertTestify.New(t)
@@ -173,7 +173,7 @@ func TestNginxContainer(t *testing.T) {
 		})
 		assert.NoError(err)
 		assert.Equal(http.StatusUnauthorized, statusCode)
-		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+		assert.Equal("{\"message\":\"invalid token\"}\n", string(body))
 	})
 
 	t.Run("Should return success when a valid JWKS is provided", func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestNginxContainer(t *testing.T) {
 		})
 		assert.NoError(err)
 		assert.Equal(http.StatusUnauthorized, statusCode)
-		assert.Equal("{\"message\":\"token not valid\"}\n", string(body))
+		assert.Equal("{\"message\":\"invalid token\"}\n", string(body))
 		containerTest.AddFiles([]container_test.File{
 			{Path: "/usr/share/tokens/jwks_2.json", File: jwksRequest},
 		})

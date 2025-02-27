@@ -75,7 +75,7 @@ function _M.validate(user_params)
         end
         ::continue::
     end
-    return nil, _M.response_error("token not valid", params.return_unauthorized_default)
+    return nil, _M.response_error("invalid token", params.return_unauthorized_default)
 end
 
 function _M.response_error(error_message, return_unauthorized_default)
