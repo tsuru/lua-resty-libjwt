@@ -42,14 +42,12 @@ type ContainerInterface interface {
 var _ ContainerInterface = (*ContainerTest)(nil)
 
 func New(ctx context.Context, context string, dockerfile string) (*ContainerTest, error) {
-	preferredPort := 8888
-	finalPort := getAvailablePort(preferredPort)
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
 			Context:    context,
 			Dockerfile: dockerfile,
 		},
-		ExposedPorts: []string{fmt.Sprintf("%d/tcp", finalPort)},
+		ExposedPorts: []string{"8888/tcp"},
 		WaitingFor:   wait.ForHTTP("/").WithStartupTimeout(10 * time.Second),
 	}
 	nginxContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -65,7 +63,7 @@ func New(ctx context.Context, context string, dockerfile string) (*ContainerTest
 	}
 	container := ContainerTest{}
 	container.Props.IP = ip
-	portString := fmt.Sprintf("%d/tcp", finalPort)
+	portString := "8888/tcp"
 	natPort := nat.Port(portString)
 	port, err := nginxContainer.MappedPort(ctx, natPort)
 	if err != nil {
