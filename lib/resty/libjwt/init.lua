@@ -58,7 +58,17 @@ function _M.validate(user_params)
         if jwks_item == nil then
             goto continue
         end
-        jwks_c.jwt_checker_setkey(checker, jwks_c.JWT_ALG_RS256, jwks_item);
+        local alg = jwks_c.jwks_item_alg(jwks_item);
+
+        if alg == jwks_c.JWT_ALG_NONE then
+            return nil, _M.response_error("No algorithm found on jwks", params.return_unauthorized_default)
+        end
+
+        if alg == jwks_c.JWT_ALG_INVAL then
+            return nil, _M.response_error("invalid algorithm found on jwks", params.return_unauthorized_default)
+        end
+
+        jwks_c.jwt_checker_setkey(checker, alg, jwks_item);
         local result = jwks_c.jwt_checker_verify(checker, token);
         if result == TOKEN_VALID then
             return parsed_token, ""

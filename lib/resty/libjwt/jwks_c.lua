@@ -25,11 +25,6 @@ typedef enum {
     JWT_ALG_INVAL,		/**< An invalid algorithm from the caller or the token */
 } jwt_alg_t;
 
-
-struct jwk_item {
-	jwt_alg_t alg;
-};
-
 typedef struct jwk_item jwk_item_t;
 
 int jwt_checker_setkey(jwt_checker_t *checker, const jwt_alg_t alg, const jwk_item_t *key);
@@ -37,6 +32,7 @@ typedef struct jwk_set jwk_set_t;
 jwk_set_t *jwks_create(const char *jwk_json_str);
 const jwk_item_t *jwks_item_get(const jwk_set_t *jwk_set, size_t index);
 jwk_item_t *jwks_find_bykid(jwk_set_t *jwk_set, const char *kid);
+jwt_alg_t jwks_item_alg(const jwk_item_t *item);
 ]]
 
 local libjwt = ffi.load("libjwt");
