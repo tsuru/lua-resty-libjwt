@@ -29,10 +29,10 @@ func TestNginxContainer(t *testing.T) {
 		assert := assertTestify.New(t)
 		containerTest.NginxToConfigDefault()
 		containerTest.Clear()
-		body, statusCode, err := request_test.Do(request_test.Params{URL: URL})
+		body, statusCode, err := request_test.Do(request_test.Params{URL: fmt.Sprintf("http://%s:%s", containerTestProps.IP, containerTestProps.Port)})
 		assert.NoError(err)
 		assert.Equal(http.StatusOK, statusCode)
-		assert.Equal("{\"message\": \"content by lua block\"}\n", string(body))
+		assert.Equal("{\"message\": \"content by nginx\"}", string(body))
 	})
 	t.Run("Should return an error when JWT is missing the kid", func(t *testing.T) {
 		assert := assertTestify.New(t)
