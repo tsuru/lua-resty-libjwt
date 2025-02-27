@@ -2,6 +2,7 @@ local jwks_c = require("resty.libjwt.jwks_c")
 local utils = require("resty.libjwt.utils")
 local cached = require("resty.libjwt.cached")
 local decode = require("resty.libjwt.decode")
+local cjson = require("cjson.safe")
 local _M = {}
 
 local open = io.open
@@ -16,20 +17,23 @@ end
 local TOKEN_VALID = 0
 function _M.validate(params)
     local params, err = utils.get_params(params)
+    if params == nil then
+        return false, _M.response_error(err, false)
+    end
     if err ~= "" then
-        return false, err
+        return false, _M.response_error(err, params.return_unauthorized_default)
     end
     local headers = ngx.req.get_headers()
     local token, err = utils.get_token(headers, params.header_token)
     if err ~= "" then
-        return false, err
+        return false, _M.response_error(err, params.return_unauthorized_default)
     end
     local parsed_token, err = decode.jwt(token)
     if err ~= nil then
-        return nil, err
+        return nil, _M.response_error(err, params.return_unauthorized_default)
     end
     if parsed_token == nil or parsed_token.header.kid == nil then
-        return nil, "kid not found"
+        return nil, _M.response_error("kid not found", params.return_unauthorized_default)
     end
 
     local files_cached = cached:getInstance()
@@ -57,7 +61,20 @@ function _M.validate(params)
         end
         ::continue::
     end
-    return nil, "token not valid"
+    return nil, _M.response_error("token not valid", params.return_unauthorized_default)
+end
+
+function _M.response_error(error_message, return_unauthorized_default)
+    if return_unauthorized_default == true then
+        ngx.header.content_type = "application/json; charset=utf-8"
+        local response = {
+            message = error_message
+        }
+        ngx.status = ngx.HTTP_UNAUTHORIZED
+        ngx.say(cjson.encode(response))
+        ngx.exit(ngx.status)
+    end
+    return error_message
 end
 
 return _M
