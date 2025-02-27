@@ -1,4 +1,4 @@
-name: LuaJIT Tests
+name: CI
 
 on:
   push:
@@ -21,11 +21,6 @@ jobs:
       - name: Install luaunit
         run: sudo luarocks install luaunit
 
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-
       - name: Run LuaJIT tests
         run: make test
 
@@ -39,6 +34,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      
+
       - name: Run Golang E2E tests
         run: make test-e2e
