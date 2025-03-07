@@ -33,6 +33,10 @@ jwk_set_t *jwks_create(const char *jwk_json_str);
 const jwk_item_t *jwks_item_get(const jwk_set_t *jwk_set, size_t index);
 jwk_item_t *jwks_find_bykid(jwk_set_t *jwk_set, const char *kid);
 jwt_alg_t jwks_item_alg(const jwk_item_t *item);
+
+
+void jwks_free(jwk_set_t *jwk_set);
+void jwt_checker_free(jwt_checker_t *checker);
 ]]
 
 local libjwt = ffi.load("libjwt");
