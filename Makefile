@@ -2,11 +2,11 @@ default: run
 
 run:
 	@echo "Running the program..."
-	@docker compose up -d
+	@docker compose --profile dev up --build
 
 .PHONY: test
 
-test:
+test.unit:
 	@find . -type f -name "*_test.lua" | while read file; do \
 	    echo "Running: $$file"; \
 	    luajit "$$file"; \
@@ -17,8 +17,11 @@ test:
 	    fi; \
 	done
 
-test-e2e:
+test.e2e:
 	@go test -v ./...
+
+test.memory_leak:
+	@docker compose --profile memory_leak up --build --abort-on-container-exit
 
 lint:
 	luacheck --std ngx_lua ./lib/
