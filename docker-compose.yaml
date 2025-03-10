@@ -1,5 +1,7 @@
 services:
   nginx:
+    profiles:
+      - dev
     build:
       context: .
       dockerfile: Dockerfile.nginx
@@ -7,3 +9,9 @@ services:
       - "8888:8888"
     volumes:
       - ./tokens:/usr/share/tokens
+  memory_leak:
+    profiles:
+      - memory_leak
+    build:
+      context: .
+      dockerfile: ./.memory_leak/Dockerfile

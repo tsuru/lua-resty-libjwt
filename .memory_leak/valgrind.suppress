@@ -1,0 +1,57 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   fun:ngx_single_process_cycle
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ngx_alloc
+   fun:ngx_set_environment
+   fun:ngx_single_process_cycle
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   fun:ngx_handle_read_event
+   fun:ngx_http_init_connection
+   fun:ngx_event_accept
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   fun:ngx_process_events_and_timers
+   fun:ngx_single_process_cycle
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   fun:ngx_handle_read_event
+   fun:ngx_http_lua_pipe_add_signal_handler
+   fun:ngx_http_lua_init_worker
+   fun:ngx_single_process_cycle
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   epoll_ctl(event)
+   fun:epoll_ctl
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   obj:/usr/local/openresty-valgrind/nginx/sbin/nginx
+   fun:ngx_single_process_cycle
+   fun:main
+}
