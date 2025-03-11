@@ -17,7 +17,7 @@ local function _read_file(path)
 end
 
 local TOKEN_VALID = 0
-
+local JWKS_CACHE_TTL = 300
 
 local function _validate(params)
     local headers = ngx.req.get_headers()
@@ -46,7 +46,7 @@ local function _validate(params)
             end
             jwks_set = jwks_c.jwks_create(file);
             ffi.gc(jwks_set, jwks_c.jwks_free);
-            files_cached:set(jwks_file, jwks_set)
+            files_cached:set(jwks_file, jwks_set, JWKS_CACHE_TTL)
 
         else
             jwks_set = files_cached:get(jwks_file)
