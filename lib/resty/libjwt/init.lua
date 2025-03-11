@@ -38,18 +38,19 @@ local function _validate(params)
 
     local files_cached = cached:getInstance()
     for _, jwks_file in ipairs(params.jwks_files) do
-        local file
+        local jwks_set
         if files_cached:get(jwks_file) == nil then
-            file = _read_file(jwks_file)
+            local file = _read_file(jwks_file)
             if file == nil then
                 goto continue
             end
-            files_cached:set(jwks_file, file)
+            jwks_set = jwks_c.jwks_create(file);
+            ffi.gc(jwks_set, jwks_c.jwks_free);
+            files_cached:set(jwks_file, jwks_set)
+
         else
-            file = files_cached:get(jwks_file)
+            jwks_set = files_cached:get(jwks_file)
         end
-        local jwks_set = jwks_c.jwks_create(file);
-        ffi.gc(jwks_set, jwks_c.jwks_free);
         local checker = jwks_c.jwt_checker_new();
         ffi.gc(checker, jwks_c.jwt_checker_free);
         local jwks_item = jwks_c.jwks_find_bykid(jwks_set, parsed_token.header.kid);
