@@ -22,17 +22,6 @@ GET /lua
 
 === TEST 2: sanity (string)
 --- config
-    location /public {
-        default_type application/json;
-        return 200 '{"message": "Hello, World!"}\n';
-    }
---- request
-GET /public
---- response_body
-{"message": "Hello, World!"}
-
-=== TEST 3: sanity (string)
---- config
     location = /t {
         content_by_lua_block {
             local ffi = require("ffi");
@@ -52,3 +41,32 @@ GET /public
 GET /t
 --- response_body
 testing the tsuru
+
+=== TEST 3: sanity (string)
+--- config
+    location /private {
+        content_by_lua_block {
+            local libjwt = require("resty.libjwt")
+            local cjson = require("cjson.safe")
+            local claim, err = libjwt.validate({
+                ["jwks_files"] = {"/usr/share/tokens/jwks.json"},
+            })
+            if claim then
+                local claim_str = cjson.encode(claim) or "Invalid Claim"
+                ngx.log(ngx.ERR, "JWT Claims: " .. claim_str)
+                ngx.status = ngx.HTTP_OK
+                return ngx.say(claim_str)
+            end
+            ngx.status = ngx.HTTP_UNAUTHORIZED
+            local response = {
+                message = "Unauthorized"
+            }
+            return ngx.say(cjson.encode(response))
+        }
+    }
+--- request
+GET /private
+--- response_body
+{"message":"Unauthorized"}
+--- no_error_log
+[error]
