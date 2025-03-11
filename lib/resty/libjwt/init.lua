@@ -38,8 +38,8 @@ local function _validate(params)
 
     local files_cached = cached:getInstance()
     for _, jwks_file in ipairs(params.jwks_files) do
-        local jwks_set
-        if files_cached:get(jwks_file) == nil then
+        local jwks_set = files_cached:get(jwks_file)
+        if jwks_set == nil then
             local file = _read_file(jwks_file)
             if file == nil then
                 goto continue
@@ -47,9 +47,6 @@ local function _validate(params)
             jwks_set = jwks_c.jwks_create(file);
             ffi.gc(jwks_set, jwks_c.jwks_free);
             files_cached:set(jwks_file, jwks_set, JWKS_CACHE_TTL)
-
-        else
-            jwks_set = files_cached:get(jwks_file)
         end
         local checker = jwks_c.jwt_checker_new();
         ffi.gc(checker, jwks_c.jwt_checker_free);
