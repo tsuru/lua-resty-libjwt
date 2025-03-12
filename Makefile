@@ -21,7 +21,7 @@ test.e2e:
 	@go test -v ./...
 
 test.memory_leak:
-	@docker compose --profile memory_leak up --build --abort-on-container-exit
+	DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose --profile memory_leak up --build --abort-on-container-exit --no-log-prefix
 
 lint:
 	luacheck --std ngx_lua ./lib/
