@@ -1,48 +1,13 @@
 # vim:set ft= ts=4 sw=4 et fdm=marker:
-
 use Test::Nginx::Socket::Lua;
 
 repeat_each(10);
-
 plan tests => blocks() * repeat_each() * 2;
-
 run_tests();
 
 __DATA__
 
-=== TEST 1: sanity (integer)
---- config
-    location /lua {
-        echo 2;
-    }
---- request
-GET /lua
---- response_body
-2
-
-=== TEST 2: sanity (string)
---- config
-    location = /t {
-        content_by_lua_block {
-            local ffi = require("ffi");
-
-            -- Define the C functions we need
-            ffi.cdef[[
-            void* malloc(size_t size);
-            void free(void* ptr);
-            ]]
-
-            local leak_size = 1024 * 1024
-            -- local ptr = ffi.C.malloc(leak_size);
-            ngx.say("testing the tsuru")
-        }
-    }
---- request
-GET /t
---- response_body
-testing the tsuru
-
-=== TEST 3: sanity (string)
+=== TEST 1: sanity (string)
 --- config
     location /private {
         content_by_lua_block {
@@ -52,10 +17,11 @@ testing the tsuru
                 ["jwks_files"] = {"/usr/share/tokens/jwks.json"},
             })
             if claim then
-                local claim_str = cjson.encode(claim) or "Invalid Claim"
-                ngx.log(ngx.ERR, "JWT Claims: " .. claim_str)
                 ngx.status = ngx.HTTP_OK
-                return ngx.say(claim_str)
+                local response = {
+                    message = "ok"
+                }
+                return ngx.say(cjson.encode(response))
             end
             ngx.status = ngx.HTTP_UNAUTHORIZED
             local response = {
@@ -66,7 +32,9 @@ testing the tsuru
     }
 --- request
 GET /private
+--- more_headers
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImtpZC10c3VydSIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiZW1haWwiOiJ0c3VydUB0c3VydS5jb20iLCJleHAiOjIwNTY5OTA3ODEsImlhdCI6MTc0MTYzMDc4MSwibmFtZSI6IlRzdXJ1Iiwic3ViIjoiMTIzNDU2Nzg5MCJ9.osEVAXF1ysV3pwoeOwaPSZK97AzMDMqCD-cyZ4ALHhLatBHszXrPqn6sJxUQdvET_RK0IJyJd15mw-Y1EMZ6WLKBjeV_iWuapQ9-7gh6sQoloZZ0V0ZNfXlbqCGoTXHb-xInFsGEgV6rj4R-5Sl1r96UiYpLdav8GmT3lKrRPILCLvihXFtiuhrUX1rmNhbiKqlIDyAPtG8rjqQzqEDqKkYH2bApjSrgsyevG9do31vbnEljukON-Hc5MgQK7zr4ZF3Ozi4m0JRy3jeIWVzpsWm9dRnTb9mcOfuY5EQP7NhFBXu-H4H-RwvStfZhfN8J9FbOR8jGEEDhUYHsLaRXNQ
 --- response_body
-{"message":"Unauthorized"}
+{"message":"ok"}
 --- no_error_log
 [error]
