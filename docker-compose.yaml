@@ -15,3 +15,9 @@ services:
     build:
       context: .
       dockerfile: ./.memory_leak/Dockerfile
+    volumes:
+      - ./.memory_leak/test/teste.t:/t/teste.t
+      - ./lib/resty/libjwt:/usr/local/openresty/lualib/resty/libjwt
+    command: ["/bin/bash"]
+    stdin_open: true
+    tty: true
