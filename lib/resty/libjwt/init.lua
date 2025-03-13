@@ -45,7 +45,7 @@ local function _validate(params)
                 goto continue
             end
             jwks_set = jwks_c.jwks_create(file);
-            ffi.gc(jwks_set, jwks_c.jwks_free);
+            ffi.gc(jwks_set, jwks_c.jwks_item_free_all);
             files_cached:set(jwks_file, jwks_set, JWKS_CACHE_TTL)
         end
         local checker = jwks_c.jwt_checker_new();
