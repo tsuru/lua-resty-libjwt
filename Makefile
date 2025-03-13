@@ -21,8 +21,8 @@ test.e2e:
 	@go test -v ./...
 
 test.memory_leak:
-	DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose --profile memory_leak up --build --abort-on-container-exit --no-log-prefix
-
+	docker build -t libjwt-memory-leak-tests --platform linux/amd64 -f .memory_leak/Dockerfile .
+	docker run --rm --name libjwt-memory-leak-tests libjwt-memory-leak-tests
 lint:
 	luacheck --std ngx_lua ./lib/
 	luacheck -g ./test/

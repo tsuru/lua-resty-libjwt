@@ -9,7 +9,7 @@ RUN apt install -y git cmake \
     libjansson-dev \
     libssl-dev 
 
-RUN git clone --depth 1 --branch v3.2.0 https://github.com/benmcollins/libjwt.git && \
+RUN git clone --depth 1 --branch master https://github.com/benmcollins/libjwt.git && \
     mkdir libjwt/build && \
     cd libjwt/build && cmake .. && make && make install
 

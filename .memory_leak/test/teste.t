@@ -1,8 +1,7 @@
 # vim:set ft= ts=4 sw=4 et fdm=marker:
-use Test::Nginx::Socket::Lua;
+use Test::Nginx::Socket::Lua 'no_plan';
 
 repeat_each(10);
-plan tests => blocks() * repeat_each() * 2;
 run_tests();
 
 __DATA__

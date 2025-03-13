@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+set -o pipefail
 
 echo "Running tests without valgrind"
 TEST_NGINX_USE_VALGRIND=1 prove -r t 2>&1 | tee /tmp/result.TEST_NGINX_USE_VALGRIND
