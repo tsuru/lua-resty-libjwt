@@ -6,6 +6,20 @@
 
 The **lua-resty-libjwt** module is a **Lua** library with **C** bindings that validates JWT tokens directly in **Nginx**. Built with **OpenResty** and leveraging **FFI** (Foreign Function Interface), it provides Lua bindings to [libjwt](https://github.com/benmcollins/libjwt). By handling JWT validation at the Nginx level, it prevents unauthorized requests from reaching the API, reducing the load on application servers.
 
+## Requirements
+
+* [Nginx](https://nginx.org) with the [Lua module](https://github.com/openresty/lua-nginx-module)
+* [libjwt](https://github.com/benmcollins/libjwt) (≥ 3.2.0)
+* [lua-cjson](https://luarocks.org/modules/openresty/lua-cjson) (≥ 2.1.0)
+
+## Install
+
+You can easily install it with [Luarocks](https://luarocks.org):
+
+```bash
+luarocks install lua-resty-libjwt
+```
+
 ## Configuration and Usage
 
 To use **Libjwt**, you need to provide the path to the **jwks.json** file, which contains the public keys for JWT token verification.
