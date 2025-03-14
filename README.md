@@ -64,7 +64,7 @@ libjwt.validate({
 If `return_unauthorized_default` is **false**, the error must be handled directly:
 
 ```lua
-local claim, err = libjwt.validate({
+local token, err = libjwt.validate({
     jwks_files = {"/usr/share/tokens/jwks.json"},
     return_unauthorized_default = false
 })
@@ -103,9 +103,9 @@ The `libjwt.validate()` function returns the **decoded claim** of the token or a
 **Example:**
 
 ```lua
-local claim, err = libjwt.validate()
-if claim then
-    ngx.log(ngx.ERR, "Valid JWT token: ", claim)
+local token, err = libjwt.validate()
+if token then
+    ngx.log(ngx.ERR, "Valid JWT token: ", token)
 else
     ngx.log(ngx.ERR, "Token validation error: ", err)
 end

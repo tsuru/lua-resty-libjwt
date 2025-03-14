@@ -95,7 +95,7 @@ func TestNginxContainer(t *testing.T) {
 		})
 		assert.NoError(err)
 		assert.Equal(http.StatusUnauthorized, statusCode)
-		assert.Equal("{\"message\":\"JWT invalid\"}\n", string(body))
+		assert.Equal("{\"message\":\"invalid JWT\"}\n", string(body))
 	})
 	t.Run("Should return an error when JWT header is missing a token", func(t *testing.T) {
 		assert := assertTestify.New(t)

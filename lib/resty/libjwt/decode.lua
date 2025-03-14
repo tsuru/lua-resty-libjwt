@@ -3,13 +3,28 @@ local cjson = require("cjson.safe")
 
 local _M = {}
 
+
+local function fast_jwt_split(str)
+    local first_dot = string.find(str, ".", 1, true)
+    if not first_dot then return nil, nil, nil, "invalid JWT" end
+
+    local second_dot = string.find(str, ".", first_dot + 1, true)
+    if not second_dot then return nil, nil, nil, "invalid JWT" end
+
+    return str:sub(1, first_dot - 1), str:sub(first_dot + 1, second_dot - 1),
+           str:sub(second_dot + 1), nil
+
+end
+
+
 function _M.jwt(jwt)
-    local header_b64, payload_b64, signature_b64 = jwt:match("([^%.]+)%.([^%.]+)%.([^%.]+)")
-    if not (header_b64 and payload_b64 and signature_b64) then
-        return nil, "JWT invalid"
+    local header_b64, payload_b64, signature_b64, header, err
+    header_b64, payload_b64, signature_b64, err = fast_jwt_split(jwt)
+    if err then
+        return nil, err
     end
 
-    local header, err = b64.decode_base64url(header_b64)
+    header, err = b64.decode_base64url(header_b64)
     if err then
         return nil, err
     end
