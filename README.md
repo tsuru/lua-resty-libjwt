@@ -78,22 +78,19 @@ Here is an example of how to configure **libjwt** in `nginx.conf`:
 server {
     listen 80;
     location /private {
-        content_by_lua_block {
+        access_by_lua_block {
             local libjwt = require("resty.libjwt")
-            local cjson = require("cjson.safe")
-            local claim, err = libjwt.validate({
+            local token, err = libjwt.validate({
                 jwks_files = {"/usr/share/tokens/jwks.json"}
             })
-            if claim then
-                local claim_str = cjson.encode(claim) or "Invalid Claim"
-                ngx.log(ngx.ERR, "JWT Claims: " .. claim_str)
-                ngx.status = ngx.HTTP_OK
-                return ngx.say(claim_str)
+            if token then
+                -- You may add logic as needed, accessing the JWT claims:
+                -- token.claim.sub
+                -- token.claim.iss
             end
-            ngx.status = ngx.HTTP_UNAUTHORIZED
-            local response = { message = "Unauthorized" }
-            return ngx.say(cjson.encode(response))
         }
+
+        proxy_pass http://your_backend;
     }
 }
 

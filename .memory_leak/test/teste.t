@@ -12,10 +12,10 @@ __DATA__
         content_by_lua_block {
             local libjwt = require("resty.libjwt")
             local cjson = require("cjson.safe")
-            local claim, err = libjwt.validate({
-                ["jwks_files"] = {"/usr/share/tokens/jwks.json"},
+            local token, err = libjwt.validate({
+                jwks_files = {"/usr/share/tokens/jwks.json"},
             })
-            if claim then
+            if token then
                 ngx.status = ngx.HTTP_OK
                 local response = {
                     message = "ok"
