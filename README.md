@@ -1,5 +1,7 @@
 # lua-resty-libjwt
 
+[![LuaRocks](https://img.shields.io/badge/LuaRocks-lua--resty--libjwt-blue.svg)](https://luarocks.org/modules/tsuru/lua-resty-libjwt)
+
 ## Overview
 
 The **lua-resty-libjwt** module is a **Lua** library with **C** bindings that validates JWT tokens directly in **Nginx**. Built with **OpenResty** and leveraging **FFI** (Foreign Function Interface), it provides Lua bindings to [libjwt](https://github.com/benmcollins/libjwt). By handling JWT validation at the Nginx level, it prevents unauthorized requests from reaching the API, reducing the load on application servers.
