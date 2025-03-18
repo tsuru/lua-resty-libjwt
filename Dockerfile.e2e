@@ -1,0 +1,12 @@
+FROM tsuru/nginx-tsuru:1.26.3-main
+
+COPY ./e2e/container/nginx.conf /etc/nginx/nginx.conf
+COPY ./lib/resty/libjwt /usr/local/lib/lua/5.1/resty/libjwt
+RUN mkdir -p /etc/nginx/html
+RUN echo -n '{"message": "content by nginx"}' > /etc/nginx/html/index.html
+
+COPY e2e/nginx/jwks_1.json /usr/share/tokens/jwks1.json
+COPY e2e/nginx/jwks_2.json /usr/share/tokens/jwks2.json
+
+EXPOSE 8888
+CMD ["nginx", "-g", "daemon off;"]
