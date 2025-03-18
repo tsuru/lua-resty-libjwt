@@ -83,13 +83,13 @@ local function _extract_claims(token, params)
     end
 end
 
-local function _response_error(error_message, return_unauthorized_default)
+local function _response_error(error_message, return_unauthorized_default, status)
     if return_unauthorized_default == true then
         ngx.header.content_type = "application/json; charset=utf-8"
         local response = {
             message = error_message
         }
-        ngx.status = ngx.HTTP_UNAUTHORIZED
+        ngx.status = status
         ngx.say(cjson.encode(response))
         ngx.exit(ngx.status)
     end
@@ -100,16 +100,20 @@ end
 function _M.validate(user_params)
     local params, err = utils.get_params(user_params)
     if params == nil then
-        return nil, _response_error(err, true)
+        return nil, _response_error(err, true, ngx.HTTP_UNAUTHORIZED)
     end
 
     local parsed_token
     parsed_token, err = _authenticate(params)
     if err ~= "" then
-        return nil, _response_error(err, params.return_unauthorized_default)
+        return nil, _response_error(err, params.return_unauthorized_default, ngx.HTTP_UNAUTHORIZED)
     end
 
-    _extract_claims(parsed_token, params)
+    local claims_extracted;
+    claims_extracted, err = pcall(_extract_claims, parsed_token, params)
+    if not claims_extracted then
+        return nil, _response_error(err, params.return_unauthorized_default, ngx.HTTP_INTERNAL_SERVER_ERROR)
+    end
 
     return parsed_token, ""
 end
