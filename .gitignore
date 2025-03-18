@@ -40,4 +40,4 @@ luac.out
 *.hex
 
 #e2e temp files
-e2e/nginx/
+e2e/nginx/*.json
