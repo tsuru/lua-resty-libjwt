@@ -93,19 +93,17 @@ type JWKSParams struct {
 	KID string
 }
 
-func Generate(jwtParams JWTParams, jwksParams JWKSParams) (jwt string, jwks string, err error) {
+func GenerateJWKSAndRSAPrivate(jwksParams JWKSParams) (jwks string, privateKey *rsa.PrivateKey, err error) {
 	privateKey, publicKey, err := GenerateRSAKeys()
 	if err != nil {
-		return "", "", fmt.Errorf("error generating RSA keys: %v", err)
+		return "", nil, fmt.Errorf("error generating RSA keys: %v", err)
 	}
-	token, err := CreateJWT(privateKey, jwtParams)
-	if err != nil {
-		return "", "", fmt.Errorf("error creating JWT: %v", err)
-	}
+
 	jwksStruct := GenerateJWKS(publicKey, jwksParams)
 	jwksJSON, err := json.MarshalIndent(jwksStruct, "", "  ")
 	if err != nil {
-		return "", "", fmt.Errorf("error generating JWKS: %v", err)
+		return "", nil, fmt.Errorf("error generating JWKS: %v", err)
 	}
-	return token, string(jwksJSON), nil
+
+	return string(jwksJSON), privateKey, nil
 }
