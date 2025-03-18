@@ -40,7 +40,8 @@ function TestShouldReturnValidatedParams()
     lu.assertEquals(result, {
         header_token = "token",
         jwks_files = { "files" },
-        return_unauthorized_default = true
+        return_unauthorized_default = true,
+        extract_claims = {},
     })
 end
 
