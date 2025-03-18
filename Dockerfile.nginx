@@ -1,21 +1,7 @@
-FROM alpine:3.21.2 as libjwt-builder
+FROM tsuru/nginx-tsuru:1.26.3-main
 
-WORKDIR /home/app
-RUN apk add --no-cache git cmake make gcc g++ jansson-dev openssl-dev 
-RUN git clone https://github.com/benmcollins/libjwt.git && \
-    cd libjwt && \
-    git checkout 8ac4200
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./lib/resty/libjwt /usr/local/lib/lua/5.1/resty/libjwt
 
-RUN mkdir -p /home/app/libjwt/build && \
-    cd /home/app/libjwt/build && \
-    cmake .. && make && make install
-
-FROM openresty/openresty:1.27.1.1-1-alpine
-
-COPY ./nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
-COPY ./lib/resty/libjwt /usr/local/openresty/lualib/resty/libjwt
-
-RUN apk add --no-cache jansson
-COPY --from=libjwt-builder /usr/local/lib/libjwt.so /usr/local/lib/libjwt.so
 EXPOSE 8888
-CMD ["openresty", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
