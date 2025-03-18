@@ -19,7 +19,7 @@ end
 local TOKEN_VALID = 0
 local JWKS_CACHE_TTL = 300
 
-local function _validate(params)
+local function _authenticate(params)
     local headers = ngx.req.get_headers()
     local token, err
 
@@ -75,6 +75,16 @@ local function _validate(params)
     return nil, "invalid token"
 end
 
+local function _extract_claims(token, params)
+    for _, claim in ipairs(params.extract_claims) do
+        if token.claim[claim] == nil then
+            return "claim not found"
+        end
+        ngx.var["jwt_"..claim] = token.claim[claim]
+    end
+    return ""
+end
+
 local function _response_error(error_message, return_unauthorized_default)
     if return_unauthorized_default == true then
         ngx.header.content_type = "application/json; charset=utf-8"
@@ -96,10 +106,16 @@ function _M.validate(user_params)
     end
 
     local parsed_token
-    parsed_token, err = _validate(params)
+    parsed_token, err = _authenticate(params)
     if err ~= "" then
         return nil, _response_error(err, params.return_unauthorized_default)
     end
+
+    err = _extract_claims(parsed_token, params)
+    if err ~= "" then
+        return nil, _response_error(err, params.return_unauthorized_default)
+    end
+
     return parsed_token, ""
 end
 
