@@ -77,12 +77,10 @@ end
 
 local function _extract_claims(token, params)
     for _, claim in ipairs(params.extract_claims) do
-        if token.claim[claim] == nil then
-            return "claim not found"
+        if token.claim[claim] ~= nil then
+            ngx.var["jwt_"..claim] = token.claim[claim]
         end
-        ngx.var["jwt_"..claim] = token.claim[claim]
     end
-    return ""
 end
 
 local function _response_error(error_message, return_unauthorized_default)
@@ -111,10 +109,7 @@ function _M.validate(user_params)
         return nil, _response_error(err, params.return_unauthorized_default)
     end
 
-    err = _extract_claims(parsed_token, params)
-    if err ~= "" then
-        return nil, _response_error(err, params.return_unauthorized_default)
-    end
+    _extract_claims(parsed_token, params)
 
     return parsed_token, ""
 end
