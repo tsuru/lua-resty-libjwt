@@ -78,7 +78,7 @@ end
 local function _extract_claims(token, params)
     for _, claim in ipairs(params.extract_claims) do
         if token.claim[claim] ~= nil then
-            ngx.var["jwt_"..claim] = token.claim[claim]
+            ngx.var["jwt_" .. claim] = token.claim[claim]
         end
     end
 end
@@ -96,8 +96,10 @@ local function _response_error(error_message, return_unauthorized_default, statu
     return error_message
 end
 
-
 function _M.validate(user_params)
+    if ngx.req.get_method() == "OPTIONS" then
+        return nil
+    end
     local params, err = utils.get_params(user_params)
     if params == nil then
         return nil, _response_error(err, true, ngx.HTTP_UNAUTHORIZED)
@@ -113,6 +115,10 @@ function _M.validate(user_params)
     claims_extracted, err = pcall(_extract_claims, parsed_token, params)
     if not claims_extracted then
         return nil, _response_error(err, params.return_unauthorized_default, ngx.HTTP_INTERNAL_SERVER_ERROR)
+    end
+    err = utils.validate_claims(params.validate_claims, parsed_token.claim)
+    if err ~= "" then
+        return nil, _response_error(err, params.return_unauthorized_default, ngx.HTTP_FORBIDDEN)
     end
 
     return parsed_token, ""
