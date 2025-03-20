@@ -1,8 +1,8 @@
 package = "lua-resty-libjwt"
-version = "0.1.1-1"
+version = "0.2.0-1"
 source = {
    url = "git://github.com/tsuru/lua-resty-libjwt.git",
-   tag = "v0.1.1"
+   tag = "v0.2.0"
 }
 description = {
    summary = "Lua bindings to libjwt (https://github.com/benmcollins/libjwt) using FFI",
