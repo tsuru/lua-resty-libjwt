@@ -13,7 +13,7 @@ function TestShouldReturnErrorPatternInvalid()
         aud = "audience1",
         sub = "tsuru.team",
     }
-    local result, err
+    local err
     err = utils.validate_claims(params, claims)
     lu.assertEquals(err, "Claim 'sub' does not match required pattern")
 end
