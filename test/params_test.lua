@@ -42,6 +42,7 @@ function TestShouldReturnValidatedParams()
         jwks_files = { "files" },
         return_unauthorized_default = true,
         extract_claims = {},
+        validate_claims = {}
     })
 end
 
