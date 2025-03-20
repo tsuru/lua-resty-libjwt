@@ -6,6 +6,7 @@ function _M.get_params(params)
         jwks_files = {},
         return_unauthorized_default = true,
         extract_claims = {},
+        validate_claims = {},
     }
     if params == nil then
         return nil, "params is required"
@@ -20,14 +21,18 @@ function _M.get_params(params)
     if params["return_unauthorized_default"] ~= nil then
         result.return_unauthorized_default = params["return_unauthorized_default"]
     end
-
     if params["extract_claims"] ~= nil then
         if type(params["extract_claims"]) ~= "table" then
             return nil, "extract_claims is not an array"
         end
         result.extract_claims = params["extract_claims"]
     end
-
+    if params["validate_claims"] ~= nil then
+        if type(params["validate_claims"]) ~= "table" then
+            return nil, "validate_claims is not an array"
+        end
+        result.validate_claims = params["validate_claims"]
+    end
     if type(params["jwks_files"]) ~= "table" then
         return nil, "jwks_files is not an array"
     end
@@ -65,6 +70,41 @@ function _M.get_token(headers, field_token)
         return nil, "token not found"
     end
     return jwtToken[2], ""
+end
+
+function _M.validate_claims(validate_claims, claims)
+    if not validate_claims then
+        return ""
+    end
+    for claim_name, validation in pairs(validate_claims) do
+        local claim_value = claims[claim_name]
+        if claim_value == nil then
+            return "Claim '" .. claim_name .. "' is missing"
+        end
+        if validation.exact ~= nil then
+            if claim_value ~= validation.exact then
+                return "Claim '" .. claim_name .. "' must be exactly '" .. validation.exact .. "'"
+            end
+        end
+        if validation.one_of ~= nil then
+            local found = false
+            for _, allowed_value in ipairs(validation.one_of) do
+                if claim_value == allowed_value then
+                    found = true
+                    break
+                end
+            end
+            if not found then
+                return "Claim '" .. claim_name .. "' must be one of the allowed values"
+            end
+        end
+        if validation.pattern ~= nil then
+            if not string.match(claim_value, validation.pattern) then
+                return "Claim '" .. claim_name .. "' does not match required pattern"
+            end
+        end
+    end
+    return ""
 end
 
 return _M
