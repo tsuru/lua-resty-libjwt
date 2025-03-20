@@ -6,6 +6,7 @@ import (
 )
 
 type Params struct {
+	Method      string
 	URL         string
 	HeaderKey   string
 	HeaderValue string
@@ -13,7 +14,13 @@ type Params struct {
 
 func Do(params Params) (body []byte, statusCode int, err error) {
 	client := http.Client{}
-	req, err := http.NewRequest(http.MethodGet, params.URL, nil)
+
+	method := http.MethodGet
+	if params.Method != "" {
+		method = params.Method
+	}
+
+	req, err := http.NewRequest(method, params.URL, nil)
 	if err != nil {
 		return nil, statusCode, err
 	}

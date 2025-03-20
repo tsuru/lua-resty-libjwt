@@ -167,6 +167,20 @@ func TestNginxContainer(t *testing.T) {
 		assert.Equal("{\"message\":\"invalid token\"}\n", string(body))
 	})
 
+	t.Run("Should ignore validation when method is OPTIONS", func(t *testing.T) {
+		t.Parallel()
+		assert := assertTestify.New(t)
+		assert.NoError(err)
+		body, statusCode, err := request_test.Do(request_test.Params{
+			Method:    http.MethodOptions,
+			URL:       URL,
+			HeaderKey: "Authorization",
+		})
+		assert.NoError(err)
+		assert.Equal(http.StatusAccepted, statusCode)
+		assert.Equal("{\"message\":\"Validation by passed\"}\n", string(body))
+	})
+
 	t.Run("Should return success when a valid JWKS is provided", func(t *testing.T) {
 		t.Parallel()
 		assert := assertTestify.New(t)
