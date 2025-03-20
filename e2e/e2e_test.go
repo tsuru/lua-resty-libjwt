@@ -212,4 +212,24 @@ func TestNginxContainer(t *testing.T) {
 		assert.Equal(http.StatusOK, statusCode)
 	})
 
+	t.Run("Should deny when passes a invalid claim", func(t *testing.T) {
+		t.Parallel()
+		assert := assertTestify.New(t)
+
+		jwtRequest, err := jwks_test.CreateJWT(
+			privateKey2,
+			jwks_test.JWTParams{KID: "kid-654321", Email: "guest@tsuru.io"})
+		assert.NoError(err)
+		body, statusCode, err := request_test.Do(request_test.Params{
+			URL:         URL,
+			HeaderKey:   "Authorization",
+			HeaderValue: fmt.Sprintf("Bearer %s", jwtRequest),
+		})
+		assert.NoError(err)
+		assert.Equal(http.StatusForbidden, statusCode)
+		assert.Equal(string(body), `{"message":"Claim 'email' must be exactly 'tsuru@tsuru.io'"}
+`)
+
+	})
+
 }

@@ -47,6 +47,7 @@ func CreateJWT(privateKey *rsa.PrivateKey, params JWTParams) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":   "1234567890",
 		"name":  "Tsuru",
+		"email": "tsuru@tsuru.io",
 		"admin": true,
 		"iat":   time.Now().Unix(),
 		"exp":   time.Now().Add(time.Hour * 24).Unix(),
