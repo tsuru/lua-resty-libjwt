@@ -134,9 +134,9 @@ local libjwt = require("resty.libjwt")
 libjwt.validate({
     jwks_files = {"/etc/nginx/jwks.json"},
     validate_claims = {
-        "iss" = {exact = "myiss"},
-        "aud" = {one_of = {"audience1", "audience2"}},
-        "sub" = {pattern = ".*@mycompany%.com"},
+        iss = {exact = "myiss"},
+        aud = {one_of = {"audience1", "audience2"}},
+        sub = {pattern = ".*@mycompany%.com"},
     },
 })
 ```
