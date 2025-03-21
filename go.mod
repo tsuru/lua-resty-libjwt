@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/docker/go-connections v0.5.0
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.35.0
 )
