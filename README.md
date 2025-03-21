@@ -123,6 +123,33 @@ end
 
 ```
 
+### Claims-based Authorization
+
+Some backends are restricted so that only certain users can access them, allowing us to restrict access based on [Claims].
+
+See the Lua configuration `validate_claims` below:
+
+```lua
+local libjwt = require("resty.libjwt")
+libjwt.validate({
+    jwks_files = {"/etc/nginx/jwks.json"},
+    validate_claims = {
+        "iss" = {exact = "myiss"},
+        "aud" = {one_of = {"audience1", "audience2"}},
+        "sub" = {pattern = ".*@mycompany%.com"},
+    },
+})
+```
+
+#### Validation Types
+
+Note that we have 3 types of validations:
+
+* `{exact = "TERM"}`: ensures that a claim must be exactly equal to TERM, otherwise the user will receive a 403 (Forbidden)
+* `{one_of = {"TERM1", "TERM2"}}`: allows a list of permitted CLAIMS, if not in the list the user will receive a 403 (Forbidden)
+* `{pattern = ".*@mycompany%.com"}`: Allows validation using [Lua Pattern Matching](https://www.lua.org/pil/20.2.html), an expression language similar to Regex. In the example above, we can ensure that only users from the mycompany.com domain can access; if the expression doesn't match, the user will receive a 403 (Forbidden)
+
+
 ## Final Considerations
 
 - Ensure that the **jwks.json** file is accessible by Nginx.
