@@ -76,6 +76,22 @@ function _M.validate_claims(validate_claims, claims)
     if not validate_claims then
         return ""
     end
+
+    if _M.is_array(validate_claims) then
+        local errors = {}
+        for i, v in ipairs(validate_claims) do
+
+            local result = _M.validate_claims(v, claims)
+            if result == "" then
+                return ""
+            end
+
+            table.insert(errors, "validate_claims constraint number " .. i .. ": " .. result)
+        end
+
+        return table.concat(errors, " OR ")
+    end
+
     for claim_name, validation in pairs(validate_claims) do
         local claim_value = claims[claim_name]
         if claim_value == nil then
@@ -105,6 +121,15 @@ function _M.validate_claims(validate_claims, claims)
         end
     end
     return ""
+end
+
+function _M.is_array(t)
+    local i = 0
+    for _ in pairs(t) do
+        i = i + 1
+        if t[i] == nil then return false end
+    end
+    return true
 end
 
 return _M
