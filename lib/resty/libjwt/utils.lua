@@ -130,7 +130,6 @@ function _M.validate_claims(validate_claims, claims)
     if is_array_of_tables(validate_claims) then
         local errors = {}
         for i, v in ipairs(validate_claims) do
-
             local result = validate_claims_inner(v, claims)
             if result == "" then return "" end
 
