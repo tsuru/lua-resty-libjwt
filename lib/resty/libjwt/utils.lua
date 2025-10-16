@@ -72,26 +72,7 @@ function _M.get_token(headers, field_token)
     return jwtToken[2], ""
 end
 
-function _M.validate_claims(validate_claims, claims)
-    if not validate_claims then
-        return ""
-    end
-
-    if _M.is_array(validate_claims) then
-        local errors = {}
-        for i, v in ipairs(validate_claims) do
-
-            local result = _M.validate_claims(v, claims)
-            if result == "" then
-                return ""
-            end
-
-            table.insert(errors, "validate_claims constraint number " .. i .. ": " .. result)
-        end
-
-        return table.concat(errors, " OR ")
-    end
-
+local function validate_claims_inner(validate_claims, claims)
     for claim_name, validation in pairs(validate_claims) do
         local claim_value = claims[claim_name]
         if claim_value == nil then
@@ -123,13 +104,44 @@ function _M.validate_claims(validate_claims, claims)
     return ""
 end
 
-function _M.is_array(t)
+local function is_array_of_tables(t)
+    if type(t) ~= "table" then
+        return false
+     end
+
     local i = 0
     for _ in pairs(t) do
         i = i + 1
-        if t[i] == nil then return false end
+        if t[i] == nil then
+            return false
+        end
+
+        if type(t[i]) ~= "table" then
+            return false
+        end
+
     end
     return true
+end
+
+function _M.validate_claims(validate_claims, claims)
+    if not validate_claims then return "" end
+
+    if is_array_of_tables(validate_claims) then
+        local errors = {}
+        for i, v in ipairs(validate_claims) do
+
+            local result = validate_claims_inner(v, claims)
+            if result == "" then return "" end
+
+            table.insert(errors, "validate_claims constraint number " .. i ..
+                             ": " .. result)
+        end
+
+        return table.concat(errors, " OR ")
+    end
+
+    return validate_claims_inner(validate_claims, claims)
 end
 
 return _M
