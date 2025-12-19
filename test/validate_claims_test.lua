@@ -66,6 +66,22 @@ function TestShouldReturnOkInValidation()
     lu.assertEquals(err, "")
 end
 
+function TestShouldSupportAudArray()
+    local params = {
+        iss = { exact = "tsuru" },
+        aud = { one_of = { "audience1", "audience2" } },
+        sub = { pattern = ".*@g%.globo" },
+    }
+    local claims = {
+        iss = "tsuru",
+        aud = {"audience1"},
+        sub = "tsuru.team@g.globo",
+    }
+    local err
+    err = utils.validate_claims(params, claims)
+    lu.assertEquals(err, "")
+end
+
 function TestShouldSupportArray()
     local params = {
         {
